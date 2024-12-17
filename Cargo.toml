@@ -1,11 +1,11 @@
 [workspace]
 
 [package]
-name = "kagi"
+name = "search"
 version = "0.1.0"
 edition = "2021"
 publish = false
-default-run = "kagi-cli"
+default-run = "search-cli"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -40,10 +40,11 @@ unic-langid = "0.9.4"
 spider = "2.21.29"
 tantivy = "0.22.0"
 lazy_static = "1.5.0"
+spider_transformations = "2.21.30"
 # /view engine
 
 [[bin]]
-name = "kagi-cli"
+name = "search-cli"
 path = "src/bin/main.rs"
 required-features = []
 

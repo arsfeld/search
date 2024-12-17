@@ -2,22 +2,15 @@ use async_trait::async_trait;
 use axum::Extension;
 use lazy_static::lazy_static;
 use loco_rs::{
-    app::{AppContext, Hooks, Initializer},
-    bgworker::{BackgroundWorker, Queue},
-    boot::{create_app, BootResult, StartMode},
-    controller::AppRoutes,
-    db::{self, truncate_table},
-    environment::Environment,
-    task::Tasks,
-    Result,
+    app::{AppContext, Hooks, Initializer}, bgworker::{BackgroundWorker, Queue}, boot::{create_app, BootResult, StartMode}, controller::AppRoutes, db::{self, truncate_table}, environment::Environment, schema, task::Tasks, Result
 };
 use migration::Migrator;
 use sea_orm::DatabaseConnection;
-use tantivy::{schema::{Schema, STORED, TEXT}, Index};
-use std::{path::Path, sync::Arc};
+use tantivy::{directory::MmapDirectory, schema::{Schema, STORED, TEXT}, Directory, Index, IndexWriter};
+use std::{path::Path, sync::{Arc, RwLock}};
 
 use crate::{
-    controllers, initializers, models::_entities::users, tasks, workers::downloader::DownloadWorker,
+    controllers, initializers, models::_entities::users, tasks, workers::{crawler::CrawlerWorker, downloader::DownloadWorker},
 };
 
 const INDEX_PATH: &str = "data/index_path";
@@ -28,9 +21,15 @@ lazy_static! {
     pub static ref tantivy_index: Arc<Index> = {
         let mut schema_builder = Schema::builder();
         schema_builder.add_text_field("title", TEXT | STORED);
+        schema_builder.add_text_field("url", TEXT | STORED);
         schema_builder.add_text_field("body", TEXT);
         let schema = schema_builder.build();
-        let index = Index::create_in_dir(&INDEX_PATH, schema.clone()).unwrap();
+
+        let directory: Box<dyn Directory> = Box::new(
+            MmapDirectory::open(&INDEX_PATH).unwrap()
+        );
+
+        let index = Index::open_or_create(directory, schema.clone()).unwrap();
 
         Arc::new(index)
     };
@@ -60,8 +59,6 @@ impl Hooks for App {
     async fn initializers(_ctx: &AppContext) -> Result<Vec<Box<dyn Initializer>>> {
         Ok(vec![
             Box::new(initializers::view_engine::ViewEngineInitializer),
-            Box::new(initializers::tantivy_reader::TantivyReaderInitializer),
-            Box::new(initializers::tantivy_writer::TantivyWriterInitializer),
         ])
     }
 
@@ -75,10 +72,12 @@ impl Hooks for App {
     }
     async fn connect_workers(ctx: &AppContext, queue: &Queue) -> Result<()> {
         queue.register(DownloadWorker::build(ctx)).await?;
+        queue.register(CrawlerWorker::build(ctx)).await?;
         Ok(())
     }
     fn register_tasks(tasks: &mut Tasks) {
         tasks.register(tasks::seed::SeedData);
+        tasks.register(tasks::enqueue_crawler::EnqueueCrawler);
         // tasks-inject (do not remove)
     }
     async fn truncate(db: &DatabaseConnection) -> Result<()> {

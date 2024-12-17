@@ -1,5 +1,5 @@
 use insta::{assert_debug_snapshot, with_settings};
-use kagi::{app::App, models::users};
+use search::{app::App, models::users};
 use loco_rs::testing;
 use rstest::rstest;
 use serial_test::serial;

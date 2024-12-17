@@ -1,12 +1,10 @@
-use std::{path::PathBuf, sync::Arc};
 
 use axum::{async_trait, Extension, Router as AxumRouter};
 use loco_rs::{
     app::{AppContext, Initializer},
     Error, Result,
 };
-use tantivy::{schema::{Schema, STORED, TEXT}, Index, IndexWriter, ReloadPolicy};
-use tracing::info;
+use tantivy::ReloadPolicy;
 
 use crate::app::tantivy_index;
 

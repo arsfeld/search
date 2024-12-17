@@ -1,4 +1,4 @@
-use kagi::app::App;
+use search::app::App;
 use loco_rs::cli;
 use migration::Migrator;
 

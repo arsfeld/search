@@ -8,6 +8,7 @@
   packages = with pkgs; [ 
     git 
     openssl.dev
+    watchexec
   ];
 
   # https://devenv.sh/languages/

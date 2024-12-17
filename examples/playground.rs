@@ -1,4 +1,4 @@
-use kagi::app::App;
+use search::app::App;
 #[allow(unused_imports)]
 use loco_rs::{cli::playground, prelude::*};
 

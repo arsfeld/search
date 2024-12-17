@@ -1,5 +1,5 @@
 use insta::assert_debug_snapshot;
-use kagi::{
+use search::{
     app::App,
     models::users::{self, Model, RegisterParams},
 };
