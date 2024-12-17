@@ -9,6 +9,7 @@
     git 
     openssl.dev
     watchexec
+    sqlite
   ];
 
   # https://devenv.sh/languages/

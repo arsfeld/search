@@ -31,13 +31,16 @@ use crate::{
     workers::{crawler::CrawlerWorker, downloader::DownloadWorker},
 };
 
-const INDEX_PATH: &str = "data/index_path";
+const INDEX_PATH: &str = "data/tantivy";
 
 // Taken from https://github.com/loco-rs/shared-global-state
 // Feels a bit weird, probably Loco could offer a better way to share state between different components.
 lazy_static! {
     pub static ref tantivy_index: Arc<Index> = {
         tracing::debug!("Initializing Tantivy index");
+
+        // Create data dir if it doesnt exist
+        std::fs::create_dir_all(INDEX_PATH).unwrap_or_default();
 
         let mut schema_builder = Schema::builder();
         schema_builder.add_text_field("title", TEXT | STORED);
