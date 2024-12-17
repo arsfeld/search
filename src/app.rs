@@ -2,15 +2,33 @@ use async_trait::async_trait;
 use axum::Extension;
 use lazy_static::lazy_static;
 use loco_rs::{
-    app::{AppContext, Hooks, Initializer}, bgworker::{BackgroundWorker, Queue}, boot::{create_app, BootResult, StartMode}, controller::AppRoutes, db::{self, truncate_table}, environment::Environment, schema, task::Tasks, Result
+    app::{AppContext, Hooks, Initializer},
+    bgworker::{BackgroundWorker, Queue},
+    boot::{create_app, BootResult, StartMode},
+    controller::AppRoutes,
+    db::{self, truncate_table},
+    environment::Environment,
+    schema,
+    task::Tasks,
+    Result,
 };
 use migration::Migrator;
 use sea_orm::DatabaseConnection;
-use tantivy::{directory::MmapDirectory, schema::{Schema, STORED, TEXT}, Directory, Index, IndexWriter};
-use std::{path::Path, sync::{Arc, RwLock}};
+use std::{
+    path::Path,
+    sync::{Arc, RwLock},
+};
+use tantivy::{
+    directory::MmapDirectory,
+    schema::{Schema, STORED, TEXT},
+    Directory, Index, IndexWriter,
+};
 
 use crate::{
-    controllers, initializers, models::_entities::users, tasks, workers::{crawler::CrawlerWorker, downloader::DownloadWorker},
+    controllers, initializers,
+    models::_entities::users,
+    tasks,
+    workers::{crawler::CrawlerWorker, downloader::DownloadWorker},
 };
 
 const INDEX_PATH: &str = "data/index_path";
@@ -19,7 +37,6 @@ const INDEX_PATH: &str = "data/index_path";
 // Feels a bit weird, probably Loco could offer a better way to share state between different components.
 lazy_static! {
     pub static ref tantivy_index: Arc<Index> = {
-
         tracing::debug!("Initializing Tantivy index");
 
         let mut schema_builder = Schema::builder();
@@ -28,9 +45,7 @@ lazy_static! {
         schema_builder.add_text_field("body", TEXT);
         let schema = schema_builder.build();
 
-        let directory: Box<dyn Directory> = Box::new(
-            MmapDirectory::open(&INDEX_PATH).unwrap()
-        );
+        let directory: Box<dyn Directory> = Box::new(MmapDirectory::open(&INDEX_PATH).unwrap());
 
         let index = Index::open_or_create(directory, schema.clone()).unwrap();
 
@@ -40,7 +55,6 @@ lazy_static! {
 
 lazy_static! {
     pub static ref tantivy_writer: Arc<RwLock<IndexWriter>> = {
-
         tracing::debug!("Initializing Tantivy writer");
 
         Arc::new(RwLock::new(tantivy_index.writer(50_000_000).unwrap()))
@@ -69,9 +83,9 @@ impl Hooks for App {
     }
 
     async fn initializers(_ctx: &AppContext) -> Result<Vec<Box<dyn Initializer>>> {
-        Ok(vec![
-            Box::new(initializers::view_engine::ViewEngineInitializer),
-        ])
+        Ok(vec![Box::new(
+            initializers::view_engine::ViewEngineInitializer,
+        )])
     }
 
     async fn after_routes(router: axum::Router, _ctx: &AppContext) -> Result<axum::Router> {

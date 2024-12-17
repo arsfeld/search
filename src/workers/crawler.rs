@@ -87,13 +87,20 @@ impl BackgroundWorker<CrawlerWorkerArgs> for CrawlerWorker {
                     let doc_url = Term::from_field_text(url, page.get_url());
 
                     info!("Deleting old document for {}", page.get_url());
-                    index_writer_lock.read().unwrap().delete_term(doc_url.clone());
+                    index_writer_lock
+                        .read()
+                        .unwrap()
+                        .delete_term(doc_url.clone());
 
-                    index_writer_lock.read().unwrap().add_document(doc!(
-                        title => "",
-                        url => page.get_url().to_string(),
-                        body => content,
-                    )).unwrap();
+                    index_writer_lock
+                        .read()
+                        .unwrap()
+                        .add_document(doc!(
+                            title => "",
+                            url => page.get_url().to_string(),
+                            body => content,
+                        ))
+                        .unwrap();
 
                     info!(
                         "- {} -- Bytes transferred {:?} -- HTML Size {:?} -- Links: {:?}",

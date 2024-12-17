@@ -1,5 +1,5 @@
-use search::app::App;
 use loco_rs::{boot::run_task, task, testing};
+use search::app::App;
 use serial_test::serial;
 
 #[tokio::test]

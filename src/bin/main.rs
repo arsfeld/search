@@ -1,6 +1,6 @@
-use search::app::App;
 use loco_rs::cli;
 use migration::Migrator;
+use search::app::App;
 
 #[tokio::main]
 async fn main() -> loco_rs::Result<()> {
