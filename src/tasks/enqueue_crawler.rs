@@ -56,7 +56,7 @@ impl Task for EnqueueCrawler {
             )
             .await?;
 
-            return Ok(())
+            //return Ok(())
         }
 
         Ok(())

@@ -19,6 +19,9 @@ const INDEX_PATH: &str = "data/index_path";
 // Feels a bit weird, probably Loco could offer a better way to share state between different components.
 lazy_static! {
     pub static ref tantivy_index: Arc<Index> = {
+
+        tracing::debug!("Initializing Tantivy index");
+
         let mut schema_builder = Schema::builder();
         schema_builder.add_text_field("title", TEXT | STORED);
         schema_builder.add_text_field("url", TEXT | STORED);
@@ -32,6 +35,15 @@ lazy_static! {
         let index = Index::open_or_create(directory, schema.clone()).unwrap();
 
         Arc::new(index)
+    };
+}
+
+lazy_static! {
+    pub static ref tantivy_writer: Arc<RwLock<IndexWriter>> = {
+
+        tracing::debug!("Initializing Tantivy writer");
+
+        Arc::new(RwLock::new(tantivy_index.writer(50_000_000).unwrap()))
     };
 }
 

@@ -11,10 +11,11 @@ use spider::{
     configuration::WaitForIdleNetwork, features::chrome_common::RequestInterceptConfiguration,
 };
 use spider_transformations::transformation::content;
-use tantivy::{doc, Index, Opstamp, TantivyDocument};
+use tantivy::{doc, Index, Opstamp, TantivyDocument, Term};
 use tokio::io::AsyncWriteExt;
+use tracing::info;
 
-use crate::app::{self, tantivy_index};
+use crate::app::{self, tantivy_index, tantivy_writer};
 
 pub struct CrawlerWorker {
     pub ctx: AppContext,
@@ -63,9 +64,6 @@ impl BackgroundWorker<CrawlerWorkerArgs> for CrawlerWorker {
         let mut rx2 = website.subscribe(16).unwrap();
 
         let start = spider::tokio::time::Instant::now();
-        
-
-        let index_writer = Arc::new(RwLock::new(tantivy_index.writer(50_000_000).unwrap()));
 
         // let index_writer = tantivy_writer.clone();
 
@@ -73,7 +71,7 @@ impl BackgroundWorker<CrawlerWorkerArgs> for CrawlerWorker {
         let url = tantivy_index.schema().get_field("title").unwrap();
         let body = tantivy_index.schema().get_field("title").unwrap();
 
-        let index_writer_lock = index_writer.clone();
+        let index_writer_lock = tantivy_writer.clone();
 
         let (links, _) = tokio::join!(
             async move {
@@ -86,45 +84,44 @@ impl BackgroundWorker<CrawlerWorkerArgs> for CrawlerWorker {
                     let conf = content::TransformConfig::default();
                     let content = content::transform_content(&page, &conf, &None, &None, &None);
 
+                    let doc_url = Term::from_field_text(url, page.get_url());
+
+                    info!("Deleting old document for {}", page.get_url());
+                    index_writer_lock.read().unwrap().delete_term(doc_url.clone());
+
                     index_writer_lock.read().unwrap().add_document(doc!(
                         title => "",
                         url => page.get_url().to_string(),
                         body => content,
-                    ));
+                    )).unwrap();
 
-                    let _ = stdout
-                        .write_all(
-                            format!(
-                                "- {} -- Bytes transferred {:?} -- HTML Size {:?} -- Links: {:?}\n",
-                                page.get_url(),
-                                page.bytes_transferred.unwrap_or_default(),
-                                page.get_html_bytes_u8().len(),
-                                match page.page_links {
-                                    Some(ref l) => l.len(),
-                                    _ => 0,
-                                }
-                            )
-                            .as_bytes(),
-                        )
-                        .await;
+                    info!(
+                        "- {} -- Bytes transferred {:?} -- HTML Size {:?} -- Links: {:?}",
+                        page.get_url(),
+                        page.bytes_transferred.unwrap_or_default(),
+                        page.get_html_bytes_u8().len(),
+                        match page.page_links {
+                            Some(ref l) => l.len(),
+                            _ => 0,
+                        }
+                    )
                 }
             }
         );
 
-        let duration = start.elapsed();
-
-
         let opstamp: Opstamp = {
-            let mut index_writer_commit = index_writer.write().unwrap();
+            let mut index_writer_commit = tantivy_writer.write().unwrap();
             index_writer_commit.commit().unwrap()
         };
-        println!("committed with opstamp {opstamp}");
 
-        println!(
-            "Time elapsed in website.crawl({}) is: {:?} for total pages: {:?}",
+        let duration = start.elapsed();
+
+        info!(
+            "Time elapsed in website.crawl({}) is: {:?} for total pages: {:?}, index opstamp: {:?}",
             args.url,
             duration,
-            links.len()
+            links.len(),
+            opstamp
         );
 
         Ok(())
