@@ -109,16 +109,26 @@ impl Initializer for ViewEngineInitializer {
             info!("locales loaded");
         }
 
+        #[cfg(debug_assertions)]
         tera_engine
             .tera
             .lock()
             .expect("lock")
             .register_filter("snippet", snippet);
 
+        #[cfg(not(debug_assertions))]
+        tera_engine.tera.register_filter("snippet", snippet);
+
+        #[cfg(debug_assertions)]
         tera_engine
             .tera
             .lock()
             .expect("lock")
+            .register_filter("highlight_words", highlight_words);
+
+        #[cfg(not(debug_assertions))]
+        tera_engine
+            .tera
             .register_filter("highlight_words", highlight_words);
 
         Ok(router.layer(Extension(ViewEngine::from(tera_engine))))

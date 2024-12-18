@@ -10,6 +10,7 @@
     openssl.dev
     watchexec
     sqlite
+    flyctl
   ];
 
   # https://devenv.sh/languages/
