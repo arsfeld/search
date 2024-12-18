@@ -10,10 +10,10 @@ use spider::website::Website;
 use spider::{
     configuration::WaitForIdleNetwork, features::chrome_common::RequestInterceptConfiguration,
 };
-use spider_transformations::transformation::content;
+use spider_transformations::transformation::content::{self, ReturnFormat};
 use tantivy::{doc, Index, Opstamp, TantivyDocument, Term};
-use tokio::io::AsyncWriteExt;
 use tracing::info;
+use ActiveValue::NotSet;
 
 use crate::app::{self, tantivy_index, tantivy_writer};
 
@@ -36,30 +36,44 @@ impl BackgroundWorker<CrawlerWorkerArgs> for CrawlerWorker {
         }
     }
     async fn perform(&self, args: CrawlerWorkerArgs) -> Result<()> {
-        let mut stdout = tokio::io::stdout();
-        let mut interception = RequestInterceptConfiguration::new(true);
+        info!("Crawling {}", args.url);
 
-        interception.block_javascript = true;
+        // Create website_db or update existing
+        // let mut website_model = websites::Entity::find()
+        //     .filter(websites::Column::Domain.eq(args.url.clone()))
+        //     .one(&self.ctx.db)
+        //     .await?;
+
+        // if (website_model.is_none()) {
+        //     let mut website_model = websites::ActiveModel {
+        //         id: NotSet, // primary key is NotSet
+        //         domain: Set(Some(args.url.clone())),
+        //         ..Default::default() // all other attributes are `NotSet`
+        //     };
+        //     let website_model = website_model.insert(&self.ctx.db).await?;
+        // }
 
         let mut website: Website = Website::new(args.url.as_str())
             .with_limit(10000)
-            .with_chrome_intercept(interception)
-            .with_wait_for_idle_network(Some(WaitForIdleNetwork::new(Some(Duration::from_millis(
-                500,
-            )))))
-            .with_wait_for_idle_dom(Some(WaitForSelector::new(
-                Some(Duration::from_millis(100)),
-                "body".into(),
-            )))
-            .with_block_assets(true)
-            // .with_wait_for_delay(Some(WaitForDelay::new(Some(Duration::from_millis(10000)))))
-            .with_stealth(true)
-            .with_return_page_links(true)
-            .with_fingerprint(true)
-            // .with_proxies(Some(vec!["http://localhost:8888".into()]))
-            // .with_chrome_connection(Some("http://127.0.0.1:9222/json/version".into()))
             .build()
             .unwrap();
+            // .with_chrome_intercept(interception)
+            // .with_wait_for_idle_network(Some(WaitForIdleNetwork::new(Some(Duration::from_millis(
+            //     500,
+            // )))))
+            // .with_wait_for_idle_dom(Some(WaitForSelector::new(
+            //     Some(Duration::from_millis(100)),
+            //     "body".into(),
+            // )))
+            // .with_block_assets(true)
+            // // .with_wait_for_delay(Some(WaitForDelay::new(Some(Duration::from_millis(10000)))))
+            // .with_stealth(true)
+            // .with_return_page_links(true)
+            // .with_fingerprint(true)
+            // // .with_proxies(Some(vec!["http://localhost:8888".into()]))
+            // // .with_chrome_connection(Some("http://127.0.0.1:9222/json/version".into()))
+            // .build()
+            // .unwrap();
 
         let mut rx2 = website.subscribe(16).unwrap();
 
@@ -81,24 +95,24 @@ impl BackgroundWorker<CrawlerWorkerArgs> for CrawlerWorker {
             },
             async move {
                 while let Ok(page) = rx2.recv().await {
-                    let conf = content::TransformConfig::default();
+                    let mut conf = content::TransformConfig::default();
+                    conf.return_format = ReturnFormat::Html2Text;
                     let content = content::transform_content(&page, &conf, &None, &None, &None);
 
                     let doc_url = Term::from_field_text(url, page.get_url());
 
-                    info!("Deleting old document for {}", page.get_url());
                     index_writer_lock
                         .read()
                         .unwrap()
                         .delete_term(doc_url.clone());
-
+                    
                     index_writer_lock
                         .read()
                         .unwrap()
                         .add_document(doc!(
                             title => "",
                             url => page.get_url().to_string(),
-                            body => content,
+                            body => content.clone(),
                         ))
                         .unwrap();
 

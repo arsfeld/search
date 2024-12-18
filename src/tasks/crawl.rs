@@ -30,12 +30,12 @@ use crate::{
 const DOMAINS_PATH: &str = "assets/domains.txt";
 
 #[allow(clippy::module_name_repetitions)]
-pub struct EnqueueCrawler;
+pub struct Crawl;
 #[async_trait]
-impl Task for EnqueueCrawler {
+impl Task for Crawl {
     fn task(&self) -> TaskInfo {
         TaskInfo {
-            name: "enqueue_crawler".to_string(),
+            name: "crawl".to_string(),
             detail: "Task for seeding data".to_string(),
         }
     }

@@ -43,7 +43,7 @@ lazy_static! {
         let mut schema_builder = Schema::builder();
         schema_builder.add_text_field("title", TEXT | STORED);
         schema_builder.add_text_field("url", TEXT | STORED);
-        schema_builder.add_text_field("body", TEXT);
+        schema_builder.add_text_field("body", TEXT | STORED);
         let schema = schema_builder.build();
 
         let directory: Box<dyn Directory> = Box::new(MmapDirectory::open(&INDEX_PATH).unwrap());
@@ -107,6 +107,7 @@ impl Hooks for App {
 
     fn routes(_ctx: &AppContext) -> AppRoutes {
         AppRoutes::with_default_routes() // controller routes below
+            .add_route(controllers::stats::routes())
             .add_route(controllers::search::routes())
     }
     
@@ -117,7 +118,7 @@ impl Hooks for App {
     }
     fn register_tasks(tasks: &mut Tasks) {
         tasks.register(tasks::seed::SeedData);
-        tasks.register(tasks::enqueue_crawler::EnqueueCrawler);
+        tasks.register(tasks::crawl::Crawl);
         // tasks-inject (do not remove)
     }
     async fn truncate(db: &DatabaseConnection) -> Result<()> {

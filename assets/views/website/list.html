@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}
+List of website
+{% endblock title %}
+
+{% block content %}
+<h1>website</h1>
+<div class="mb-10">
+    {% for item in items %}
+    <div class="mb-5">
+            <div>
+                <label><b>{{"domain" | capitalize }}:</b> {{item.domain}}</label>
+                </div>
+            <a href="/websites/{{ item.id }}/edit">Edit</a>
+            <a href="/websites/{{ item.id }}">View</a>
+        </div>
+    {% endfor %}
+
+    <br />
+    <br />
+    <a href="/websites/new">New website</a>
+</div>
+{% endblock content %}

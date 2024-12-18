@@ -1,2 +1,2 @@
-pub mod enqueue_crawler;
+pub mod crawl;
 pub mod seed;

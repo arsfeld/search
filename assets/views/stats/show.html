@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}
+View stats: {{ item.id }}
+{% endblock title %}
+
+{% block content %}
+<h1>View stats: {{ item.id }}</h1>
+<div class="mb-10">
+    <div>
+    <label><b>{{"domain" | capitalize }}:</b> {{item.domain}}</label>
+    </div>
+<div>
+    <label><b>{{"links" | capitalize }}:</b> {{item.links}}</label>
+    </div>
+<br />
+<a href="/stats">Back to stats</a>
+</div>
+{% endblock content %}

@@ -10,8 +10,6 @@
     openssl.dev
     watchexec
     sqlite
-    pnpm
-    nodePackages.nodejs
   ];
 
   # https://devenv.sh/languages/

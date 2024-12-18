@@ -3,4 +3,5 @@
 pub mod prelude;
 
 pub mod htmx_tests;
+pub mod stats;
 pub mod users;

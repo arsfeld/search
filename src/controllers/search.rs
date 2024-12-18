@@ -28,6 +28,15 @@ pub async fn index(
     views::search::index(&v)
 }
 
+fn get_string_field(doc: &TantivyDocument, field: Field) -> String {
+    doc.get_first(field)
+        .and_then(|v| match v {
+            OwnedValue::Str(s) => Some(s.to_string()),
+            _ => None,
+        })
+        .unwrap_or_default()
+}
+
 #[debug_handler]
 pub async fn results(
     ViewEngine(v): ViewEngine<TeraView>,
@@ -50,28 +59,15 @@ pub async fn results(
         .map(|(_score, doc_address)| {
             let retrieved_doc: TantivyDocument = searcher.doc(doc_address).unwrap();
 
-            info!("Retrieved document: {:?}", retrieved_doc.to_json(&tantivy_index.schema()));
+            // info!("Retrieved document: {:?}", retrieved_doc.to_json(&tantivy_index.schema()));
+
+            let full_body = get_string_field(&retrieved_doc, body);
 
             // Convert the retrieved fields into a ResultItem
             ResultItem {
-                title: retrieved_doc.get_first(title)
-                    .and_then(|v| match v.to_owned() {
-                        OwnedValue::Str(s) => Some(s),
-                        _ => Some("".to_string()),
-                    })
-                    .unwrap_or_default(),
-                url: retrieved_doc.get_first(url)
-                    .and_then(|v| match v.to_owned() {
-                        OwnedValue::Str(s) => Some(s),
-                        _ => Some("".to_string()),
-                    })
-                    .unwrap_or_default(),
-                body: retrieved_doc.get_first(body)
-                    .and_then(|v| match v.to_owned() {
-                        OwnedValue::Str(s) => Some(s),
-                        _ => Some("".to_string()),
-                    })
-                    .unwrap_or_default(),
+                title: get_string_field(&retrieved_doc, title),
+                url: get_string_field(&retrieved_doc, url),
+                body: full_body.clone(),
             }
         })
         .collect();

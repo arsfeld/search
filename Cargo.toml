@@ -37,10 +37,11 @@ include_dir = "0.7"
 # view engine i18n
 fluent-templates = { version = "0.8.0", features = ["tera"] }
 unic-langid = "0.9.4"
-spider = "2.21.29"
+spider = {version = "2.21.29", features = ["smart"] }
 tantivy = "0.22.0"
 lazy_static = "1.5.0"
 spider_transformations = "2.21.30"
+tera = "1.20.0"
 # /view engine
 
 [[bin]]
