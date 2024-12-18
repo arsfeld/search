@@ -10,33 +10,17 @@
     openssl.dev
     watchexec
     sqlite
+    pnpm
+    nodePackages.nodejs
   ];
 
   # https://devenv.sh/languages/
   languages.rust.enable = true;
 
   # https://devenv.sh/processes/
-  # processes.cargo-watch.exec = "cargo-watch";
-
-  # https://devenv.sh/services/
-  # services.postgres.enable = true;
+  processes.cargo-watch.exec = "cargo-watch";
 
   services.redis.enable = true;
-
-  # https://devenv.sh/scripts/
-  scripts.hello.exec = ''
-    echo hello from $GREET
-  '';
-
-  enterShell = ''
-    hello
-    git --version
-  '';
-
-  # https://devenv.sh/tasks/
-  tasks = {
-    "start".exec = "cargo loco start";
-  };
 
   # https://devenv.sh/tests/
   enterTest = ''

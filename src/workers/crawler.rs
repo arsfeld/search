@@ -68,8 +68,8 @@ impl BackgroundWorker<CrawlerWorkerArgs> for CrawlerWorker {
         // let index_writer = tantivy_writer.clone();
 
         let title = tantivy_index.schema().get_field("title").unwrap();
-        let url = tantivy_index.schema().get_field("title").unwrap();
-        let body = tantivy_index.schema().get_field("title").unwrap();
+        let url = tantivy_index.schema().get_field("url").unwrap();
+        let body = tantivy_index.schema().get_field("body").unwrap();
 
         let index_writer_lock = tantivy_writer.clone();
 

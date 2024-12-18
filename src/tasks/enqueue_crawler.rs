@@ -47,10 +47,14 @@ impl Task for EnqueueCrawler {
 
         let file = File::open(path)?;
         let reader = BufReader::new(file);
-        for line in reader.lines() {
+        for (i, line) in reader.lines().enumerate() {
             let domain = line.map_err(|e| Error::string(&e.to_string()))?;
             CrawlerWorker::perform_later(&app_context, CrawlerWorkerArgs { url: domain }).await?;
 
+            // Uncomment this to limit the number of tasks
+            if i >= 5 {
+                break;
+            }
             //return Ok(())
         }
 

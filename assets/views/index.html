@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}
+Search
+{% endblock title %}
+
+{% block content %}
+<div class="mb-10">
+    <p>Type to search:</p>
+    <input type="text" name="query" class="border-2 border-gray-300 p-2 rounded-lg" hx-post="/search"
+        hx-trigger="input changed delay:500ms, keyup[key=='Enter'], load" hx-target="#search-results"
+        hx-indicator=".htmx-indicator" />
+
+    <div id="search-results"></div>
+</div>
+{% endblock content %}

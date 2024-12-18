@@ -19,9 +19,7 @@ use std::{
     sync::{Arc, RwLock},
 };
 use tantivy::{
-    directory::MmapDirectory,
-    schema::{Schema, STORED, TEXT},
-    Directory, Index, IndexWriter,
+    directory::MmapDirectory, schema::{Schema, STORED, TEXT}, Directory, Index, IndexReader, IndexWriter, ReloadPolicy
 };
 
 use crate::{
@@ -64,6 +62,18 @@ lazy_static! {
     };
 }
 
+lazy_static! {
+    pub static ref tantivy_reader: Arc<IndexReader> = {
+        tracing::debug!("Initializing Tantivy reader");
+
+        Arc::new(tantivy_index
+            .reader_builder()
+            .reload_policy(ReloadPolicy::OnCommitWithDelay)
+            .try_into()
+            .unwrap())
+    };
+}
+
 pub struct App;
 #[async_trait]
 impl Hooks for App {
@@ -97,8 +107,9 @@ impl Hooks for App {
 
     fn routes(_ctx: &AppContext) -> AppRoutes {
         AppRoutes::with_default_routes() // controller routes below
-            .add_route(controllers::auth::routes())
+            .add_route(controllers::search::routes())
     }
+    
     async fn connect_workers(ctx: &AppContext, queue: &Queue) -> Result<()> {
         queue.register(DownloadWorker::build(ctx)).await?;
         queue.register(CrawlerWorker::build(ctx)).await?;
