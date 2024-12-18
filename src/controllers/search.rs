@@ -1,14 +1,18 @@
 #![allow(clippy::missing_errors_doc)]
 #![allow(clippy::unnecessary_struct_initialization)]
 #![allow(clippy::unused_async)]
+use std::sync::Arc;
+
 use axum::debug_handler;
+use futures::stream::{self, StreamExt};
 use loco_rs::prelude::*;
-use sea_orm::QueryOrder;
+use sea_orm::{Order, QueryOrder};
 use serde::{Deserialize, Serialize};
 use tantivy::{collector::TopDocs, query::QueryParser, TantivyDocument};
 
 use tantivy::schema::*;
 
+use crate::models::_entities::pages::{self, Column};
 use crate::models::search::ResultItem;
 use crate::{
     app::{tantivy_index, tantivy_reader},
@@ -43,7 +47,7 @@ pub async fn results(
     State(ctx): State<AppContext>,
     Form(params): Form<Params>,
 ) -> Result<Response> {
-    let searcher = tantivy_reader.searcher();
+    let searcher = Arc::new(tantivy_reader.searcher());
 
     let title = tantivy_index.schema().get_field("title").unwrap();
     let url = tantivy_index.schema().get_field("url").unwrap();
@@ -54,23 +58,53 @@ pub async fn results(
 
     let top_docs = searcher.search(&query, &TopDocs::with_limit(10)).unwrap();
 
-    let results = top_docs
-        .into_iter()
+    let db = ctx.db.clone();
+
+    let results = stream::iter(top_docs)
         .map(|(_score, doc_address)| {
-            let retrieved_doc: TantivyDocument = searcher.doc(doc_address).unwrap();
+            let searcher_clone: Arc<tantivy::Searcher> = searcher.clone();
+            let db_clone = db.clone();
+            async move {
+                let retrieved_doc: TantivyDocument = searcher_clone.doc(doc_address).unwrap();
 
-            // info!("Retrieved document: {:?}", retrieved_doc.to_json(&tantivy_index.schema()));
+                let item = pages::Entity::find()
+                    .filter(pages::Column::Url.eq(get_string_field(&retrieved_doc, url)))
+                    .one(&db_clone)
+                    .await;
 
-            let full_body = get_string_field(&retrieved_doc, body);
+                let _item = match item {
+                    Ok(Some(i)) => i,
+                    Ok(None) => {
+                        // Handle case where no item was found
+                        // You might want to log this or handle it differently
+                        tracing::warn!(
+                            "No item found for URL: {}",
+                            get_string_field(&retrieved_doc, url)
+                        );
+                        return None;
+                    }
+                    Err(e) => {
+                        // Handle the error case
+                        tracing::error!("Error fetching item from database: {:?}", e);
+                        return None;
+                    }
+                };
 
-            // Convert the retrieved fields into a ResultItem
-            ResultItem {
-                title: get_string_field(&retrieved_doc, title),
-                url: get_string_field(&retrieved_doc, url),
-                body: full_body.clone(),
+                // info!("Retrieved document: {:?}", retrieved_doc.to_json(&tantivy_index.schema()));
+
+                let full_body = get_string_field(&retrieved_doc, body);
+
+                // Convert the retrieved fields into a ResultItem
+                Some(ResultItem {
+                    title: get_string_field(&retrieved_doc, title),
+                    url: get_string_field(&retrieved_doc, url),
+                    body: _item.body,
+                })
             }
         })
-        .collect();
+        .filter_map(|item| async move { item.await }) // Remove None values
+        .collect()
+        .await;
 
     views::search::results(&v, &params.query, results)
 }

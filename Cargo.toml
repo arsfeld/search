@@ -42,6 +42,8 @@ tantivy = "0.22.0"
 lazy_static = "1.5.0"
 spider_transformations = "2.21.30"
 tera = "1.20.0"
+futures = "0.3.31"
+regex = "1.11.1"
 # /view engine
 
 [[bin]]

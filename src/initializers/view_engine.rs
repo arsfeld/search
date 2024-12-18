@@ -16,35 +16,68 @@ const I18N_SHARED: &str = "assets/i18n/shared.ftl";
 pub struct ViewEngineInitializer;
 
 fn snippet(value: &Value, args: &HashMap<String, Value>) -> tera::Result<Value> {
-    let text = value.to_string();
+    let text = value.as_str().unwrap_or_default();
+    let empty_string = Value::String("".to_string());
     let query = args
         .get("query")
-        .unwrap_or(&Value::String("".to_string()))
-        .to_string();
+        .unwrap_or(&empty_string)
+        .as_str()
+        .unwrap_or_default();
     let context_size = args
         .get("context_size")
         .unwrap_or(&Value::from(200))
         .as_u64()
         .unwrap() as usize;
 
-    if let Some(start_index) = text.to_lowercase().find(&query.to_lowercase()) {
-        info!("Found query in start index: {}", start_index);
-        let start = start_index.saturating_sub(context_size);
-        let end = (start_index + query.len() + context_size).min(text.len());
+    let start_index = text.to_lowercase().find(&query.to_lowercase());
 
-        let mut snippet = String::new();
-        if start > 0 {
-            snippet.push_str("...");
+    match start_index {
+        Some(start_index) => {
+            let start = start_index.saturating_sub(context_size);
+            let end = (start_index + query.len() + context_size).min(text.len());
+
+            let mut snippet = String::new();
+            if start > 0 {
+                snippet.push_str("...");
+            }
+            snippet.push_str(&text[start..end]);
+            if end < text.len() {
+                snippet.push_str("...");
+            }
+            Ok(to_value(snippet).unwrap())
         }
-        snippet.push_str(&text[start..end]);
-        if end < text.len() {
-            snippet.push_str("...");
+        None => {
+            Ok(to_value(text.chars().take(context_size * 2).collect::<String>() + "...").unwrap())
         }
-        Ok(to_value(snippet).unwrap())
-    } else {
-        // If query not found, return the first few characters
-        Ok(to_value(text.chars().take(context_size * 2).collect::<String>() + "...").unwrap())
     }
+}
+
+fn highlight_words(value: &Value, args: &HashMap<String, Value>) -> tera::Result<Value> {
+    let text = value.as_str().unwrap_or_default();
+    let empty_vec = vec![];
+    let words = args
+        .get("words")
+        .and_then(|w| w.as_array())
+        .unwrap_or(&empty_vec);
+
+    let mut result = text.to_string();
+    for word in words {
+        if let Some(word_str) = word.as_str() {
+            let regex = regex::Regex::new(&format!(r"(?i){}", regex::escape(word_str)))
+                .map_err(|e| tera::Error::msg(format!("Invalid regex: {}", e)))?;
+
+            result = regex
+                .replace_all(&result, |caps: &regex::Captures| {
+                    format!(
+                        "<span class=\"bg-yellow-200 text-yellow-900 px-1 rounded\">{}</span>",
+                        &caps[0] // This preserves the original case
+                    )
+                })
+                .into_owned();
+        }
+    }
+
+    Ok(to_value(result).unwrap())
 }
 
 #[async_trait]
@@ -81,6 +114,12 @@ impl Initializer for ViewEngineInitializer {
             .lock()
             .expect("lock")
             .register_filter("snippet", snippet);
+
+        tera_engine
+            .tera
+            .lock()
+            .expect("lock")
+            .register_filter("highlight_words", highlight_words);
 
         Ok(router.layer(Extension(ViewEngine::from(tera_engine))))
     }
