@@ -24,3 +24,9 @@ primary_region = 'yyz'
   cpu_kind = 'shared'
   cpus = 1
   memory_mb = 256
+
+[mounts]
+  source = "search_data"
+  destination = "/data"
+  processes = ["disk"] # optional - attach volumes to Machines that belong to one or more process groups
+  initial_size = "1gb" # optional - the size of the volume created on first deploy
