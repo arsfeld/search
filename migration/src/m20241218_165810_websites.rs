@@ -9,10 +9,9 @@ impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
             .create_table(
-                table_auto_tz(Stats::Table)
-                    .col(pk_auto(Stats::Id))
-                    .col(string_null(Stats::Domain))
-                    .col(integer_null(Stats::Links))
+                table_auto_tz(Websites::Table)
+                    .col(pk_auto(Websites::Id))
+                    .col(string(Websites::Domain))
                     .to_owned(),
             )
             .await
@@ -20,15 +19,14 @@ impl MigrationTrait for Migration {
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_table(Table::drop().table(Stats::Table).to_owned())
+            .drop_table(Table::drop().table(Websites::Table).to_owned())
             .await
     }
 }
 
 #[derive(DeriveIden)]
-enum Stats {
+enum Websites {
     Table,
     Id,
     Domain,
-    Links,
 }

@@ -1,18 +1,18 @@
 #![allow(clippy::missing_errors_doc)]
 #![allow(clippy::unnecessary_struct_initialization)]
 #![allow(clippy::unused_async)]
-use loco_rs::prelude::*;
-use serde::{Deserialize, Serialize};
-use sea_orm::{sea_query::Order, QueryOrder};
 use axum::debug_handler;
+use loco_rs::prelude::*;
+use sea_orm::QueryOrder;
+use serde::{Deserialize, Serialize};
 use tantivy::{collector::TopDocs, query::QueryParser, TantivyDocument};
 
 use tantivy::schema::*;
-use tracing::info;
 
 use crate::models::search::ResultItem;
 use crate::{
-    app::{tantivy_index, tantivy_reader}, models::_entities::htmx_tests::{ActiveModel, Column, Entity, Model}, views
+    app::{tantivy_index, tantivy_reader},
+    views,
 };
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -48,12 +48,12 @@ pub async fn results(
     let title = tantivy_index.schema().get_field("title").unwrap();
     let url = tantivy_index.schema().get_field("url").unwrap();
     let body = tantivy_index.schema().get_field("body").unwrap();
-    
+
     let query_parser = QueryParser::for_index(&tantivy_index, vec![title, body, url]);
     let query = query_parser.parse_query(&params.query).unwrap();
-    
+
     let top_docs = searcher.search(&query, &TopDocs::with_limit(10)).unwrap();
-    
+
     let results = top_docs
         .into_iter()
         .map(|(_score, doc_address)| {

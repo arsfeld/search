@@ -17,15 +17,11 @@
 use std::{
     fs::File,
     io::{prelude::*, BufReader},
-    path::Path,
 };
 
-use loco_rs::{db, prelude::*};
+use loco_rs::prelude::*;
 
-use crate::{
-    app::App,
-    workers::crawler::{CrawlerWorker, CrawlerWorkerArgs},
-};
+use crate::workers::crawler::{CrawlerWorker, CrawlerWorkerArgs};
 
 const DOMAINS_PATH: &str = "assets/domains.txt";
 

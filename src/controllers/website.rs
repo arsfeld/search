@@ -7,20 +7,18 @@ use sea_orm::{sea_query::Order, QueryOrder};
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    models::_entities::stats::{ActiveModel, Column, Entity, Model},
+    models::_entities::websites::{ActiveModel, Column, Entity, Model},
     views,
 };
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Params {
-    pub domain: Option<String>,
-    pub links: Option<i32>,
+    pub domain: String,
 }
 
 impl Params {
     fn update(&self, item: &mut ActiveModel) {
         item.domain = Set(self.domain.clone());
-        item.links = Set(self.links.clone());
     }
 }
 
@@ -38,7 +36,7 @@ pub async fn list(
         .order_by(Column::Id, Order::Desc)
         .all(&ctx.db)
         .await?;
-    views::stats::list(&v, &item)
+    views::website::list(&v, &item)
 }
 
 #[debug_handler]
@@ -46,7 +44,7 @@ pub async fn new(
     ViewEngine(v): ViewEngine<TeraView>,
     State(_ctx): State<AppContext>,
 ) -> Result<Response> {
-    views::stats::create(&v)
+    views::website::create(&v)
 }
 
 #[debug_handler]
@@ -69,7 +67,7 @@ pub async fn edit(
     State(ctx): State<AppContext>,
 ) -> Result<Response> {
     let item = load_item(&ctx, id).await?;
-    views::stats::edit(&v, &item)
+    views::website::edit(&v, &item)
 }
 
 #[debug_handler]
@@ -79,7 +77,7 @@ pub async fn show(
     State(ctx): State<AppContext>,
 ) -> Result<Response> {
     let item = load_item(&ctx, id).await?;
-    views::stats::show(&v, &item)
+    views::website::show(&v, &item)
 }
 
 #[debug_handler]
@@ -93,7 +91,7 @@ pub async fn add(
     };
     params.update(&mut item);
     let item = item.insert(&ctx.db).await?;
-    views::stats::show(&v, &item)
+    views::website::show(&v, &item)
 }
 
 #[debug_handler]
@@ -104,7 +102,7 @@ pub async fn remove(Path(id): Path<i32>, State(ctx): State<AppContext>) -> Resul
 
 pub fn routes() -> Routes {
     Routes::new()
-        .prefix("stats/")
+        .prefix("websites/")
         .add("/", get(list))
         .add("/", post(add))
         .add("new", get(new))

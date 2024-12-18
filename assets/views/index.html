@@ -1,3 +1,4 @@
+
 {% extends "base.html" %}
 
 {% block title %}
@@ -5,12 +6,30 @@ Search
 {% endblock title %}
 
 {% block content %}
-<div class="mb-10">
-    <p>Type to search:</p>
-    <input type="text" name="query" class="border-2 border-gray-300 p-2 rounded-lg" hx-post="/search"
-        hx-trigger="input changed delay:500ms, keyup[key=='Enter'], load" hx-target="#search-results"
-        hx-indicator=".htmx-indicator" />
 
-    <div id="search-results"></div>
+<nav class="bg-gray-800 text-white p-4 mb-8">
+    <div class="container mx-auto flex justify-between items-center">
+        <a href="/" class="text-xl font-bold">Search Engine</a>
+        <ul class="flex space-x-4">
+            <li><a href="/websites" class="hover:text-gray-300 transition duration-300">Websites</a></li>
+            <li><a href="/pages" class="hover:text-gray-300 transition duration-300">Pages</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container mx-auto px-4 max-w-2xl">
+    <div class="text-center mb-8">
+        <p class="text-xl mb-4">Type to search:</p>
+        <input type="text" name="query" 
+               class="w-full border-2 border-gray-300 p-4 rounded-lg text-lg focus:outline-none focus:border-blue-500 transition duration-300" 
+               hx-post="/search"
+               hx-trigger="input changed delay:500ms, keyup[key=='Enter'], load" 
+               hx-target="#search-results"
+               hx-indicator=".htmx-indicator" 
+               placeholder="Enter your search query..."
+        />
+    </div>
+
+    <div id="search-results" class="mt-8"></div>
 </div>
 {% endblock content %}

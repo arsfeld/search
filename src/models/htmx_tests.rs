@@ -1,5 +1,5 @@
-use sea_orm::entity::prelude::*;
 use super::_entities::htmx_tests::{ActiveModel, Entity};
+use sea_orm::entity::prelude::*;
 pub type HtmxTests = Entity;
 
 #[async_trait::async_trait]

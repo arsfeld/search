@@ -4,10 +4,10 @@ use axum::{async_trait, Extension, Router as AxumRouter};
 use fluent_templates::{ArcLoader, FluentLoader};
 use loco_rs::{
     app::{AppContext, Initializer},
-    controller::views::{engines, tera_builtins, ViewEngine},
+    controller::views::{engines, ViewEngine},
     Error, Result,
 };
-use serde_json::{from_value, to_value, Value};
+use serde_json::{to_value, Value};
 use tracing::info;
 
 const I18N_DIR: &str = "assets/i18n";
@@ -15,17 +15,23 @@ const I18N_SHARED: &str = "assets/i18n/shared.ftl";
 #[allow(clippy::module_name_repetitions)]
 pub struct ViewEngineInitializer;
 
-
 fn snippet(value: &Value, args: &HashMap<String, Value>) -> tera::Result<Value> {
     let text = value.to_string();
-    let query = args.get("query").unwrap_or(&Value::String("".to_string())).to_string();
-    let context_size = args.get("context_size").unwrap_or(&Value::from(200)).as_u64().unwrap() as usize;
+    let query = args
+        .get("query")
+        .unwrap_or(&Value::String("".to_string()))
+        .to_string();
+    let context_size = args
+        .get("context_size")
+        .unwrap_or(&Value::from(200))
+        .as_u64()
+        .unwrap() as usize;
 
     if let Some(start_index) = text.to_lowercase().find(&query.to_lowercase()) {
         info!("Found query in start index: {}", start_index);
         let start = start_index.saturating_sub(context_size);
         let end = (start_index + query.len() + context_size).min(text.len());
-        
+
         let mut snippet = String::new();
         if start > 0 {
             snippet.push_str("...");

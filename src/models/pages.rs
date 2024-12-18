@@ -1,6 +1,6 @@
-use super::_entities::stats::{ActiveModel, Entity};
+use super::_entities::pages::{ActiveModel, Entity};
 use sea_orm::entity::prelude::*;
-pub type Stats = Entity;
+pub type Pages = Entity;
 
 #[async_trait::async_trait]
 impl ActiveModelBehavior for ActiveModel {

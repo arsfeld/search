@@ -8,7 +8,14 @@ pub fn index(v: &impl ViewRenderer) -> Result<Response> {
 }
 
 pub fn results(v: &impl ViewRenderer, query: &str, results: Vec<ResultItem>) -> Result<Response> {
-    info!("Rendering search results for query: {}, results: {:?}", query, results);
+    info!(
+        "Rendering search results for query: {}, results: {:?}",
+        query, results
+    );
 
-    format::render().view(v, "search/results.html", data!({"query": query, "results": results}))
+    format::render().view(
+        v,
+        "search/results.html",
+        data!({"query": query, "results": results}),
+    )
 }

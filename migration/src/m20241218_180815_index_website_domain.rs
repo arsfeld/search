@@ -1,30 +1,33 @@
-use loco_rs::schema::table_auto_tz;
 use sea_orm_migration::{prelude::*, schema::*};
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
 
+#[derive(DeriveIden)]
+enum Websites {
+    Table,
+    Domain,
+}
+
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
+        //
+        // create index
+        //
         manager
-            .create_table(
-                table_auto_tz(HtmxTests::Table)
-                    .col(pk_auto(HtmxTests::Id))
+            .create_index(
+                Index::create()
+                    .name("idx-websites-domain")
+                    .table(Websites::Table)
+                    .col(Websites::Domain)
+                    .unique()
                     .to_owned(),
             )
             .await
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        manager
-            .drop_table(Table::drop().table(HtmxTests::Table).to_owned())
-            .await
+        Ok(())
     }
-}
-
-#[derive(DeriveIden)]
-enum HtmxTests {
-    Table,
-    Id,
 }

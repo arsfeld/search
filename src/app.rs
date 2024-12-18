@@ -8,7 +8,6 @@ use loco_rs::{
     controller::AppRoutes,
     db::{self, truncate_table},
     environment::Environment,
-    schema,
     task::Tasks,
     Result,
 };
@@ -19,7 +18,9 @@ use std::{
     sync::{Arc, RwLock},
 };
 use tantivy::{
-    directory::MmapDirectory, schema::{Schema, STORED, TEXT}, Directory, Index, IndexReader, IndexWriter, ReloadPolicy
+    directory::MmapDirectory,
+    schema::{Schema, STORED, TEXT},
+    Directory, Index, IndexReader, IndexWriter, ReloadPolicy,
 };
 
 use crate::{
@@ -66,11 +67,13 @@ lazy_static! {
     pub static ref tantivy_reader: Arc<IndexReader> = {
         tracing::debug!("Initializing Tantivy reader");
 
-        Arc::new(tantivy_index
-            .reader_builder()
-            .reload_policy(ReloadPolicy::OnCommitWithDelay)
-            .try_into()
-            .unwrap())
+        Arc::new(
+            tantivy_index
+                .reader_builder()
+                .reload_policy(ReloadPolicy::OnCommitWithDelay)
+                .try_into()
+                .unwrap(),
+        )
     };
 }
 
@@ -107,10 +110,12 @@ impl Hooks for App {
 
     fn routes(_ctx: &AppContext) -> AppRoutes {
         AppRoutes::with_default_routes() // controller routes below
+            .add_route(controllers::page::routes())
+            .add_route(controllers::website::routes())
             .add_route(controllers::stats::routes())
             .add_route(controllers::search::routes())
     }
-    
+
     async fn connect_workers(ctx: &AppContext, queue: &Queue) -> Result<()> {
         queue.register(DownloadWorker::build(ctx)).await?;
         queue.register(CrawlerWorker::build(ctx)).await?;

@@ -5,12 +5,43 @@ View page: {{ item.id }}
 {% endblock title %}
 
 {% block content %}
-<h1>View page: {{ item.id }}</h1>
-<div class="mb-10">
-    <div>
-    <label><b>{{"url" | capitalize }}:</b> {{item.url}}</label>
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <div class="bg-white shadow-md rounded-lg overflow-hidden">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-gray-800">Page Details</h1>
+                <a href="/pages" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded transition duration-300 ease-in-out">
+                    Back to Pages
+                </a>
+            </div>
+
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold text-gray-700 mb-2">URL</h2>
+                <p class="text-lg text-gray-800 mb-2">{{item.url}}</p>
+                <div class="flex space-x-4">
+                    <a href="{{ item.url }}" target="_blank" class="text-blue-600 hover:text-blue-800 transition-colors duration-150">
+                        <i class="fas fa-external-link-alt mr-1"></i> Visit Website
+                    </a>
+                    <a href="/pages/{{ item.id }}/edit" class="text-green-600 hover:text-green-800 transition-colors duration-150">
+                        <i class="fas fa-edit mr-1"></i> Edit Page
+                    </a>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold text-gray-700 mb-2">Body</h2>
+                <div class="bg-gray-100 p-4 rounded-md max-h-96 overflow-y-auto">
+                    <p class="text-sm text-gray-800 whitespace-pre-wrap">{{ item.body }}</p>
+                </div>
+            </div>
+
+            <div class="mt-8 border-t pt-4">
+                <h2 class="text-xl font-semibold text-gray-700 mb-2">Page Information</h2>
+                <p class="text-gray-600"><span class="font-medium">ID:</span> {{ item.id }}</p>
+                <p class="text-gray-600"><span class="font-medium">Created:</span> {{ item.created_at | date(format="%Y-%m-%d %H:%M:%S") }}</p>
+                <p class="text-gray-600"><span class="font-medium">Last Updated:</span> {{ item.updated_at | date(format="%Y-%m-%d %H:%M:%S") }}</p>
+            </div>
+        </div>
     </div>
-<br />
-<a href="/pages">Back to pages</a>
 </div>
 {% endblock content %}
