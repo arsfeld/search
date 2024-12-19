@@ -3,3 +3,4 @@ dockerfile
 .dockerignore
 .git
 .gitignore
+data
