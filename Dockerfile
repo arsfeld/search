@@ -27,4 +27,4 @@ COPY --from=builder /usr/src/assets/static/404.html /usr/app/assets/static/404.h
 COPY --from=builder /usr/src/config /usr/app/config
 COPY --from=builder /usr/src/target/release/search-cli /usr/app/search-cli
 
-ENTRYPOINT ["/usr/app/search-cli"]
+ENTRYPOINT ["/usr/app/search-cli" "start" "-e" "production"]
