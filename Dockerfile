@@ -37,4 +37,4 @@ COPY --from=builder /usr/src/target/release/search-cli /usr/app/search-cli
 
 VOLUME /usr/app/data
 
-ENTRYPOINT ["/usr/app/search-cli", "start", "-e", "production"]
+ENTRYPOINT ["/usr/app/search-cli", "start", "-e", "production", "-b", "0.0.0.0", "-s"]
