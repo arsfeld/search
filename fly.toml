@@ -27,6 +27,5 @@ primary_region = 'yyz'
 
 [mounts]
   source = "search_data"
-  destination = "/data"
-  processes = ["disk"] # optional - attach volumes to Machines that belong to one or more process groups
+  destination = "/usr/app/data"
   initial_size = "1gb" # optional - the size of the volume created on first deploy
