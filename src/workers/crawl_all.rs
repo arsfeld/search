@@ -24,7 +24,7 @@ impl BackgroundWorker<CrawlAllWorkerArgs> for CrawlAllWorker {
     async fn perform(&self, _args: CrawlAllWorkerArgs) -> Result<()> {
         println!("=================CrawlAll=======================");
 
-        let websites = websites::Entity::find().limit(5).all(&self.ctx.db).await?;
+        let websites = websites::Entity::find().all(&self.ctx.db).await?;
 
         info!("Enqueuing {} websites to crawl", websites.len());
 
