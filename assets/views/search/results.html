@@ -6,8 +6,14 @@ Search results for "{{ query }}"
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
-    <h2 class="text-3xl font-bold mb-6 text-gray-800">Search results for "{{ query }}"</h2>
-
+    <div class="mb-6">
+        <h2 class="text-3xl font-bold text-gray-800 mb-2">Search results for "{{ query }}"</h2>
+        <p class="text-sm text-gray-600">
+            <span class="inline-block bg-gray-200 rounded-full px-3 py-1 font-semibold">
+                <i class="fas fa-clock mr-1"></i> {{ duration | round | int }} ms
+            </span>
+        </p>
+    </div>
     {% if results %}
         <div class="space-y-6">
             {% for item in results %}

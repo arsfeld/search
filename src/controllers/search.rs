@@ -6,13 +6,12 @@ use std::sync::Arc;
 use axum::debug_handler;
 use futures::stream::{self, StreamExt};
 use loco_rs::prelude::*;
-use sea_orm::{Order, QueryOrder};
 use serde::{Deserialize, Serialize};
 use tantivy::{collector::TopDocs, query::QueryParser, TantivyDocument};
 
 use tantivy::schema::*;
 
-use crate::models::_entities::pages::{self, Column};
+use crate::models::_entities::pages::{self};
 use crate::models::search::ResultItem;
 use crate::{
     app::{tantivy_index, tantivy_reader},
@@ -47,6 +46,8 @@ pub async fn results(
     State(ctx): State<AppContext>,
     Form(params): Form<Params>,
 ) -> Result<Response> {
+    let start = spider::tokio::time::Instant::now();
+
     let searcher = Arc::new(tantivy_reader.searcher());
 
     let title = tantivy_index.schema().get_field("title").unwrap();
@@ -76,7 +77,6 @@ pub async fn results(
                     Ok(Some(i)) => i,
                     Ok(None) => {
                         // Handle case where no item was found
-                        // You might want to log this or handle it differently
                         tracing::warn!(
                             "No item found for URL: {}",
                             get_string_field(&retrieved_doc, url)
@@ -90,11 +90,6 @@ pub async fn results(
                     }
                 };
 
-                // info!("Retrieved document: {:?}", retrieved_doc.to_json(&tantivy_index.schema()));
-
-                let full_body = get_string_field(&retrieved_doc, body);
-
-                // Convert the retrieved fields into a ResultItem
                 Some(ResultItem {
                     title: get_string_field(&retrieved_doc, title),
                     url: get_string_field(&retrieved_doc, url),
@@ -106,7 +101,9 @@ pub async fn results(
         .collect()
         .await;
 
-    views::search::results(&v, &params.query, results)
+    let duration = start.elapsed();
+
+    views::search::results(&v, &params.query, results, duration)
 }
 
 pub fn routes() -> Routes {
