@@ -9,7 +9,7 @@ use loco_rs::prelude::*;
 use serde::{Deserialize, Serialize};
 use tantivy::{collector::TopDocs, query::QueryParser, TantivyDocument};
 
-use tantivy::schema::*;
+use tantivy::schema::{Field, OwnedValue};
 
 use crate::models::_entities::pages::{self};
 use crate::models::search::ResultItem;

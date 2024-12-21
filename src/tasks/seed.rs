@@ -40,7 +40,7 @@ impl Task for SeedData {
 
         let path_arg = vars
             .cli_arg("path")
-            .map(|path| path.as_str())
+            .map(std::string::String::as_str)
             .unwrap_or("./fixtures");
 
         if refresh {

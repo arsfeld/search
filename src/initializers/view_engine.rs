@@ -17,7 +17,7 @@ pub struct ViewEngineInitializer;
 
 fn snippet(value: &Value, args: &HashMap<String, Value>) -> tera::Result<Value> {
     let text = value.as_str().unwrap_or_default();
-    let empty_string = Value::String("".to_string());
+    let empty_string = Value::String(String::new());
     let query = args
         .get("query")
         .unwrap_or(&empty_string)
@@ -64,7 +64,7 @@ fn highlight_words(value: &Value, args: &HashMap<String, Value>) -> tera::Result
     for word in words {
         if let Some(word_str) = word.as_str() {
             let regex = regex::Regex::new(&format!(r"(?i){}", regex::escape(word_str)))
-                .map_err(|e| tera::Error::msg(format!("Invalid regex: {}", e)))?;
+                .map_err(|e| tera::Error::msg(format!("Invalid regex: {e}")))?;
 
             result = regex
                 .replace_all(&result, |caps: &regex::Captures| {

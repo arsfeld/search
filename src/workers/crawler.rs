@@ -1,12 +1,10 @@
 use std::sync::{Arc, RwLock};
-use std::time::Duration;
 
 use loco_rs::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use spider::configuration::{WaitForIdleNetwork, WaitForSelector};
 use spider::website::Website;
-use spider::{features::chrome_common::RequestInterceptConfiguration, tokio};
+use spider::tokio;
 use spider_transformations::transformation::content::{self, ReturnFormat, TransformConfig};
 use tantivy::{doc, Index, Opstamp, TantivyError, Term};
 use tracing::info;
@@ -30,7 +28,7 @@ fn update_index(
     let index_writer = index_writer_lock.read()?;
 
     let doc_url = Term::from_field_text(url_field, url.as_str());
-    index_writer.delete_term(doc_url.clone());
+    index_writer.delete_term(doc_url);
 
     index_writer.add_document(doc!(
         title_field => "",
@@ -125,7 +123,7 @@ impl BackgroundWorker<CrawlerWorkerArgs> for CrawlerWorker {
 
         let index_writer_lock = tantivy_writer.clone();
 
-        let (links, _) = tokio::join!(
+        let (links, ()) = tokio::join!(
             async move {
                 website.crawl().await;
                 website.unsubscribe();
@@ -142,7 +140,7 @@ impl BackgroundWorker<CrawlerWorkerArgs> for CrawlerWorker {
 
                     update_index(&index_writer_lock, url.clone(), content.clone()).unwrap_or_else(
                         |e| {
-                            eprintln!("Error updating index: {:?}", e);
+                            eprintln!("Error updating index: {e:?}");
                         },
                     );
 
@@ -155,7 +153,7 @@ impl BackgroundWorker<CrawlerWorkerArgs> for CrawlerWorker {
                     .await
                     {
                         Ok(_) => (),
-                        Err(e) => eprintln!("Error creating/updating page: {:?}", e),
+                        Err(e) => eprintln!("Error creating/updating page: {e:?}"),
                     }
 
                     info!(
@@ -167,7 +165,7 @@ impl BackgroundWorker<CrawlerWorkerArgs> for CrawlerWorker {
                             Some(ref l) => l.len(),
                             _ => 0,
                         }
-                    )
+                    );
                 }
             }
         );

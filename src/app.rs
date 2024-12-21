@@ -49,7 +49,7 @@ lazy_static! {
 
         let directory: Box<dyn Directory> = Box::new(MmapDirectory::open(INDEX_PATH).unwrap());
 
-        let index = Index::open_or_create(directory, schema.clone()).unwrap();
+        let index = Index::open_or_create(directory, schema).unwrap();
 
         Arc::new(index)
     };
