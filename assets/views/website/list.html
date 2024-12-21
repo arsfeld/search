@@ -5,48 +5,49 @@ List of Websites
 {% endblock title %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">Websites</h1>
-        <div class="flex space-x-4">
-            <button id="crawl-button"
-                hx-post="/websites/crawl"
-                hx-trigger="click"
-                hx-target="#crawl-status"
-                hx-swap="innerHTML"
-                class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded transition duration-300 ease-in-out flex items-center">
-                <span>Crawl Websites</span>
-                <div id="spinner" class="hidden ml-2">
-                    <div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
-                </div>
-                <div id="crawl-status" class="ml-2"></div>
-            </button>
-            <a href="/" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded transition duration-300 ease-in-out">
-                Back to Search
-            </a>
-        </div>
-    </div>
-    <div class="bg-white shadow-md rounded-lg overflow-hidden">
-        {% for i in items %}
-        {% set item = i[0] %}
-        {% set pages = i[1] %}
-        <div class="border-b border-gray-200 last:border-b-0">
-            <div class="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors duration-150">
-                <div class="flex-grow">
-                    <h2 class="text-lg font-semibold text-gray-700">{{ item.domain }}</h2>
-                    <p class="text-sm text-gray-500 mt-1">{{ pages | length }} page{% if pages | length != 1 %}s{% endif %} indexed</p>
-                </div>
-
-                <div class="flex space-x-2">
-                    <a href="/websites/{{ item.id }}/edit" class="text-green-600 hover:text-green-800 transition-colors duration-150">Edit</a>
-                </div>
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <div class="bg-white shadow-md rounded-lg overflow-hidden mb-8">
+        <div class="flex justify-between items-center p-6 border-b">
+            <h1 class="text-2xl font-medium text-gray-800">Websites</h1>
+            <div class="flex space-x-4">
+                <button id="crawl-button"
+                    hx-post="/websites/crawl"
+                    hx-trigger="click"
+                    hx-target="#crawl-status"
+                    hx-swap="innerHTML"
+                    class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-full transition duration-300 ease-in-out flex items-center shadow-md hover:shadow-lg">
+                    <span>Crawl Websites</span>
+                    <div id="spinner" class="hidden ml-2">
+                        <div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                    </div>
+                    <div id="crawl-status" class="ml-2"></div>
+                </button>
+                <a href="/" class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-full transition duration-300 ease-in-out flex items-center shadow-md hover:shadow-lg">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    Back to Search
+                </a>
             </div>
         </div>
-        {% endfor %}
+        <div class="divide-y divide-gray-200">
+            {% for i in items %}
+            {% set item = i[0] %}
+            {% set pages = i[1] %}
+            <div class="p-4 hover:bg-gray-50 transition-colors duration-150">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-medium text-gray-700">{{ item.domain }}</h2>
+                        <p class="text-sm text-gray-500 mt-1">{{ pages | length }} page{% if pages | length != 1 %}s{% endif %} indexed</p>
+                    </div>
+                    <a href="/websites/{{ item.id }}/edit" class="text-blue-600 hover:text-blue-800 transition-colors duration-150 px-3 py-1 rounded-full hover:bg-blue-100">Edit</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
     </div>
 
-    <div class="mt-8">
-        <a href="/websites/new" class="inline-block bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600 transition-colors duration-150">
+    <div class="flex justify-center">
+        <a href="/websites/new" class="inline-flex items-center bg-blue-500 text-white font-medium py-2 px-6 rounded-full hover:bg-blue-600 transition-colors duration-150 shadow-md hover:shadow-lg">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
             Add New Website
         </a>
     </div>

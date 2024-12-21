@@ -5,32 +5,33 @@ List of Pages
 {% endblock title %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">Pages</h1>
-        <a href="/" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded transition duration-300 ease-in-out">
-            Back to Search
-        </a>
-    </div>
-    <div class="bg-white shadow-md rounded-lg overflow-hidden">
-        {% for item in items %}
-        <div class="border-b border-gray-200 last:border-b-0">
-            <div class="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors duration-150">
-                <div class="flex-grow">
-                    <h2 class="text-lg font-semibold text-gray-700">{{ item.url }}</h2>
-                </div>
-                <div class="flex space-x-2">
-                    <a href="/pages/{{ item.id }}" class="text-blue-600 hover:text-blue-800 transition-colors duration-150">View</a>
-                    <span class="text-gray-300">|</span>
-                    <a href="/pages/{{ item.id }}/edit" class="text-green-600 hover:text-green-800 transition-colors duration-150">Edit</a>
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <div class="bg-white shadow-md rounded-lg overflow-hidden mb-8">
+        <div class="flex justify-between items-center p-6 border-b">
+            <h1 class="text-2xl font-medium text-gray-800">Pages</h1>
+            <a href="/" class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-full transition duration-300 ease-in-out flex items-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Back to Search
+            </a>
+        </div>
+        <div class="divide-y divide-gray-200">
+            {% for item in items %}
+            <div class="p-4 hover:bg-gray-50 transition-colors duration-150">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg text-gray-700 truncate max-w-xl">{{ item.url }}</h2>
+                    <div class="flex space-x-2">
+                        <a href="/pages/{{ item.id }}" class="text-blue-600 hover:text-blue-800 transition-colors duration-150 px-3 py-1 rounded-full hover:bg-blue-100">View</a>
+                        <a href="/pages/{{ item.id }}/edit" class="text-green-600 hover:text-green-800 transition-colors duration-150 px-3 py-1 rounded-full hover:bg-green-100">Edit</a>
+                    </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
 
-    <div class="mt-8">
-        <a href="/pages/new" class="inline-block bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600 transition-colors duration-150">
+    <div class="flex justify-center">
+        <a href="/pages/new" class="inline-flex items-center bg-blue-500 text-white font-medium py-2 px-6 rounded-full hover:bg-blue-600 transition-colors duration-150 shadow-md hover:shadow-lg">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
             Add New Page
         </a>
     </div>
