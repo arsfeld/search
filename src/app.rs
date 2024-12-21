@@ -25,7 +25,7 @@ use tantivy::{
 
 use crate::{
     controllers, initializers,
-    models::{_entities::users, _entities::websites},
+    models::_entities::{pages, websites},
     tasks,
     workers::{crawler::CrawlerWorker, downloader::DownloadWorker},
 };
@@ -129,7 +129,8 @@ impl Hooks for App {
         // tasks-inject (do not remove)
     }
     async fn truncate(db: &DatabaseConnection) -> Result<()> {
-        truncate_table(db, users::Entity).await?;
+        truncate_table(db, websites::Entity).await?;
+        truncate_table(db, pages::Entity).await?;
         Ok(())
     }
 

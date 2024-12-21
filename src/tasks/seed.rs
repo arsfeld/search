@@ -41,7 +41,7 @@ impl Task for SeedData {
         let path_arg = vars
             .cli_arg("path")
             .map(std::string::String::as_str)
-            .unwrap_or("./fixtures");
+            .unwrap_or("./src/fixtures");
 
         if refresh {
             db::reset::<Migrator>(&app_context.db).await?;

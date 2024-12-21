@@ -74,7 +74,7 @@ mailer:
 # Database Configuration
 database:
   # Database connection URI
-  uri: {{ get_env(name="DATABASE_URL", default="sqlite://search_test.sqlite?mode=rwc") }}
+  uri: {{ get_env(name="DATABASE_URL", default="sqlite://data/search_test.sqlite?mode=rwc") }}
   # When enabled, the sql query will be logged.
   enable_logging: false
   # Set the timeout duration when acquiring a connection.
@@ -90,7 +90,7 @@ database:
   # Truncate database when application loaded. This is a dangerous operation, make sure that you using this flag only on dev environments or test mode
   dangerously_truncate: true
   # Recreating schema when application loaded.  This is a dangerous operation, make sure that you using this flag only on dev environments or test mode
-  dangerously_recreate: false
+  dangerously_recreate: true
 
 # Authentication Configuration
 auth:

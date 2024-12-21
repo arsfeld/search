@@ -31,6 +31,7 @@ fn update_index(
     index_writer.delete_term(doc_url);
 
     index_writer.add_document(doc!(
+        // TODO: Extract title from content
         title_field => "",
         url_field => url,
         body_field => content,

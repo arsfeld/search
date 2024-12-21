@@ -1,4 +1,3 @@
-pub mod auth;
 
 pub mod page;
 pub mod search;
