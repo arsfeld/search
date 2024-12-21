@@ -51,11 +51,6 @@ name = "search-cli"
 path = "src/bin/main.rs"
 required-features = []
 
-[[bin]]
-name = "search"
-path = "src/bin/main.rs"
-required-features = []
-
 [dev-dependencies]
 loco-rs = { workspace = true, features = ["testing"] }
 serial_test = "3.1.1"
