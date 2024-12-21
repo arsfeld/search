@@ -7,8 +7,8 @@ use sea_orm::{sea_query::Order, QueryOrder};
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    models::_entities::websites::{ActiveModel, Column, Entity, Model},
-    views,
+    models::_entities::{pages, websites::{ActiveModel, Column, Entity, Model}},
+    views, workers::crawl_all::{CrawlAllWorker, CrawlAllWorkerArgs},
 };
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -33,7 +33,8 @@ pub async fn list(
     State(ctx): State<AppContext>,
 ) -> Result<Response> {
     let item = Entity::find()
-        .order_by(Column::Id, Order::Desc)
+        .order_by(Column::Id, Order::Asc)
+        .find_with_related(pages::Entity)
         .all(&ctx.db)
         .await?;
     views::website::list(&v, &item)
@@ -100,6 +101,15 @@ pub async fn remove(Path(id): Path<i32>, State(ctx): State<AppContext>) -> Resul
     format::empty()
 }
 
+#[debug_handler]
+pub async fn crawl(
+    State(ctx): State<AppContext>,
+) -> Result<Response> {
+    CrawlAllWorker::perform_later(&ctx, CrawlAllWorkerArgs {}).await?;
+
+    format::html("Crawling started")
+}
+
 pub fn routes() -> Routes {
     Routes::new()
         .prefix("websites/")
@@ -111,4 +121,5 @@ pub fn routes() -> Routes {
         .add(":id", delete(remove))
         .add(":id", put(update))
         .add(":id", patch(update))
+        .add("crawl", post(crawl))
 }

@@ -8,20 +8,33 @@ List of Websites
 <div class="container mx-auto px-4 py-8">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-gray-800">Websites</h1>
-        <a href="/" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded transition duration-300 ease-in-out">
-            Back to Search
-        </a>
+        <div class="flex space-x-4">
+            <button id="crawl-button"
+                hx-post="/websites/crawl"
+                hx-trigger="click"
+                hx-target="#crawl-status"
+                hx-swap="innerHTML"
+                class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded transition duration-300 ease-in-out">
+                Crawl Websites
+            </button>
+            <div id="crawl-status" class="text-green-600 mb-4"></div>
+            <a href="/" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded transition duration-300 ease-in-out">
+                Back to Search
+            </a>
+        </div>
     </div>
     <div class="bg-white shadow-md rounded-lg overflow-hidden">
-        {% for item in items %}
+        {% for i in items %}
+        {% set item = i[0] %}
+        {% set pages = i[1] %}
         <div class="border-b border-gray-200 last:border-b-0">
             <div class="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors duration-150">
                 <div class="flex-grow">
                     <h2 class="text-lg font-semibold text-gray-700">{{ item.domain }}</h2>
+                    <p class="text-sm text-gray-500 mt-1">{{ pages | length }} page{% if pages | length != 1 %}s{% endif %} indexed</p>
                 </div>
+
                 <div class="flex space-x-2">
-                    <a href="/websites/{{ item.id }}" class="text-blue-600 hover:text-blue-800 transition-colors duration-150">View</a>
-                    <span class="text-gray-300">|</span>
                     <a href="/websites/{{ item.id }}/edit" class="text-green-600 hover:text-green-800 transition-colors duration-150">Edit</a>
                 </div>
             </div>
@@ -36,3 +49,13 @@ List of Websites
     </div>
 </div>
 {% endblock content %}
+
+{% block js %}
+<script>
+    htmx.on("htmx:afterRequest", function(evt) {
+        if (evt.detail.elt.id === "crawl-button") {
+            alert("Crawling process started!");
+        }
+    });
+</script>
+{% endblock js %}

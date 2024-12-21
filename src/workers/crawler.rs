@@ -18,8 +18,6 @@ use crate::{
     models::_entities::websites,
 };
 
-// ... (other imports)
-
 fn update_index(
     index_writer_lock: &Arc<RwLock<tantivy::IndexWriter>>,
     url: String,

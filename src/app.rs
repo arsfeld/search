@@ -25,7 +25,7 @@ use tantivy::{
 
 use crate::{
     controllers, initializers,
-    models::_entities::users,
+    models::{_entities::users, _entities::websites},
     tasks,
     workers::{crawler::CrawlerWorker, downloader::DownloadWorker},
 };
@@ -117,6 +117,7 @@ impl Hooks for App {
     }
 
     async fn connect_workers(ctx: &AppContext, queue: &Queue) -> Result<()> {
+        queue.register(crate::workers::crawl_all::CrawlAllWorker::build(ctx)).await?;
         queue.register(DownloadWorker::build(ctx)).await?;
         queue.register(CrawlerWorker::build(ctx)).await?;
         Ok(())
@@ -133,6 +134,7 @@ impl Hooks for App {
 
     async fn seed(db: &DatabaseConnection, base: &Path) -> Result<()> {
         db::seed::<users::ActiveModel>(db, &base.join("users.yaml").display().to_string()).await?;
+        db::seed::<websites::ActiveModel>(db, &base.join("websites.yaml").display().to_string()).await?;
         Ok(())
     }
 }
