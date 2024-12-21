@@ -1,11 +1,12 @@
 use loco_rs::prelude::*;
-use sea_orm::QuerySelect;
 use serde::{Deserialize, Serialize};
 
 use tracing::info;
 
 use crate::{
-    app::tantivy_writer, models::_entities::websites, workers::crawler::{CrawlerWorker, CrawlerWorkerArgs}
+    app::tantivy_writer,
+    models::_entities::websites,
+    workers::crawler::{CrawlerWorker, CrawlerWorkerArgs},
 };
 
 pub struct CrawlAllWorker {
