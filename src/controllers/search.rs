@@ -97,7 +97,7 @@ pub async fn results(
                 })
             }
         })
-        .filter_map(|item| async move { item.await }) // Remove None values
+        .filter_map(|item| item) // Remove None values
         .collect()
         .await;
 

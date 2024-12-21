@@ -47,7 +47,7 @@ lazy_static! {
         schema_builder.add_text_field("body", TEXT | STORED);
         let schema = schema_builder.build();
 
-        let directory: Box<dyn Directory> = Box::new(MmapDirectory::open(&INDEX_PATH).unwrap());
+        let directory: Box<dyn Directory> = Box::new(MmapDirectory::open(INDEX_PATH).unwrap());
 
         let index = Index::open_or_create(directory, schema.clone()).unwrap();
 

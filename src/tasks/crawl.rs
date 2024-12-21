@@ -14,7 +14,7 @@ impl Task for Crawl {
     }
 
     async fn run(&self, app_context: &AppContext, vars: &task::Vars) -> Result<()> {
-        CrawlAllWorker::perform_later(&app_context, CrawlAllWorkerArgs {}).await?;
+        CrawlAllWorker::perform_later(app_context, CrawlAllWorkerArgs {}).await?;
 
         Ok(())
     }
