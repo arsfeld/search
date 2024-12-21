@@ -35,10 +35,15 @@ impl Task for SeedData {
             .cli_arg("refresh")
             .is_ok_and(|refresh| refresh == "true");
 
+        let path_arg = vars
+            .cli_arg("path")
+            .map(|path| path.as_str())
+            .unwrap_or("src/fixtures");
+
         if refresh {
             db::reset::<Migrator>(&app_context.db).await?;
         }
-        let path = std::path::Path::new("src/fixtures");
+        let path = std::path::Path::new(path_arg);
         db::run_app_seed::<App>(&app_context.db, path).await?;
         Ok(())
     }

@@ -33,6 +33,7 @@ WORKDIR /usr/app
 
 COPY --from=builder /usr/src/assets /usr/app/assets
 COPY --from=builder /usr/src/config /usr/app/config
+COPY --from=builder /usr/src/fixtures /usr/app/fixtures
 COPY --from=builder /usr/src/target/release/search-cli /usr/app/search-cli
 
 VOLUME /usr/app/data
