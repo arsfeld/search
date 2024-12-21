@@ -39,13 +39,11 @@ workers:
   #   - BackgroundAsync - Workers operate asynchronously in the background, processing tasks with async capabilities.
   mode: BackgroundQueue
 
-  
 # Queue Configuration
 queue:
-  kind: Redis
-  # Redis connection URI
-  uri: {{ get_env(name="REDIS_URL", default="redis://127.0.0.1") }}
-  # Dangerously flush all data in Redis on startup. dangerous operation, make sure that you using this flag only on dev environments or test mode
+  kind: Sqlite
+  # SQLite Queue connection URI
+  uri: {{ get_env(name="DATABASE_URL", default="sqlite://data/search_development.sqlite?mode=rwc") }}
   dangerously_flush: false
 
 # Mailer Configuration.

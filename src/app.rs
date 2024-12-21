@@ -134,7 +134,6 @@ impl Hooks for App {
     }
 
     async fn seed(db: &DatabaseConnection, base: &Path) -> Result<()> {
-        db::seed::<users::ActiveModel>(db, &base.join("users.yaml").display().to_string()).await?;
         db::seed::<websites::ActiveModel>(db, &base.join("websites.yaml").display().to_string())
             .await?;
         Ok(())

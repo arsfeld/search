@@ -14,8 +14,11 @@
 //! cargo run task seed_data refresh:true
 //! ```
 
+use std::path::absolute;
+
 use loco_rs::{db, prelude::*};
 use migration::Migrator;
+use tracing::info;
 
 use crate::app::App;
 
@@ -44,6 +47,9 @@ impl Task for SeedData {
             db::reset::<Migrator>(&app_context.db).await?;
         }
         let path = std::path::Path::new(path_arg);
+
+        info!("Seeding data from {:?}", absolute(path));
+
         db::run_app_seed::<App>(&app_context.db, path).await?;
         Ok(())
     }
