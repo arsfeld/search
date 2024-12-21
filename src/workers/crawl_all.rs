@@ -5,8 +5,7 @@ use serde::{Deserialize, Serialize};
 use tracing::info;
 
 use crate::{
-    models::_entities::websites,
-    workers::crawler::{CrawlerWorker, CrawlerWorkerArgs},
+    app::tantivy_writer, models::_entities::websites, workers::crawler::{CrawlerWorker, CrawlerWorkerArgs}
 };
 
 pub struct CrawlAllWorker {
@@ -24,7 +23,15 @@ impl BackgroundWorker<CrawlAllWorkerArgs> for CrawlAllWorker {
     async fn perform(&self, _args: CrawlAllWorkerArgs) -> Result<()> {
         println!("=================CrawlAll=======================");
 
-        let websites = websites::Entity::find().all(&self.ctx.db).await?;
+        {
+            info!("Removing index...");
+
+            let mut index_writer = tantivy_writer.write().unwrap();
+            index_writer.delete_all_documents().unwrap();
+            index_writer.commit().unwrap();
+        }
+
+        let websites = websites::Entity::find().limit(10).all(&self.ctx.db).await?;
 
         info!("Enqueuing {} websites to crawl", websites.len());
 
