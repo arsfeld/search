@@ -31,7 +31,7 @@ impl BackgroundWorker<CrawlAllWorkerArgs> for CrawlAllWorker {
             index_writer.commit().unwrap();
         }
 
-        let websites = websites::Entity::find().limit(10).all(&self.ctx.db).await?;
+        let websites = websites::Entity::find().all(&self.ctx.db).await?;
 
         info!("Enqueuing {} websites to crawl", websites.len());
 
