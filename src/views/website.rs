@@ -7,7 +7,10 @@ use crate::models::_entities::{pages, websites};
 /// # Errors
 ///
 /// When there is an issue with rendering the view.
-pub fn list(v: &impl ViewRenderer, items: &Vec<(websites::Model, Vec<pages::Model>)>) -> Result<Response> {
+pub fn list(
+    v: &impl ViewRenderer,
+    items: &Vec<(websites::Model, Vec<pages::Model>)>,
+) -> Result<Response> {
     format::render().view(v, "website/list.html", data!({"items": items}))
 }
 

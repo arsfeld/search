@@ -7,8 +7,12 @@ use sea_orm::{sea_query::Order, QueryOrder};
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    models::_entities::{pages, websites::{ActiveModel, Column, Entity, Model}},
-    views, workers::crawl_all::{CrawlAllWorker, CrawlAllWorkerArgs},
+    models::_entities::{
+        pages,
+        websites::{ActiveModel, Column, Entity, Model},
+    },
+    views,
+    workers::crawl_all::{CrawlAllWorker, CrawlAllWorkerArgs},
 };
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -102,9 +106,7 @@ pub async fn remove(Path(id): Path<i32>, State(ctx): State<AppContext>) -> Resul
 }
 
 #[debug_handler]
-pub async fn crawl(
-    State(ctx): State<AppContext>,
-) -> Result<Response> {
+pub async fn crawl(State(ctx): State<AppContext>) -> Result<Response> {
     CrawlAllWorker::perform_later(&ctx, CrawlAllWorkerArgs {}).await?;
 
     format::html("Crawling started")

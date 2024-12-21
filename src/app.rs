@@ -112,12 +112,13 @@ impl Hooks for App {
         AppRoutes::with_default_routes() // controller routes below
             .add_route(controllers::page::routes())
             .add_route(controllers::website::routes())
-            .add_route(controllers::stats::routes())
             .add_route(controllers::search::routes())
     }
 
     async fn connect_workers(ctx: &AppContext, queue: &Queue) -> Result<()> {
-        queue.register(crate::workers::crawl_all::CrawlAllWorker::build(ctx)).await?;
+        queue
+            .register(crate::workers::crawl_all::CrawlAllWorker::build(ctx))
+            .await?;
         queue.register(DownloadWorker::build(ctx)).await?;
         queue.register(CrawlerWorker::build(ctx)).await?;
         Ok(())
@@ -134,7 +135,8 @@ impl Hooks for App {
 
     async fn seed(db: &DatabaseConnection, base: &Path) -> Result<()> {
         db::seed::<users::ActiveModel>(db, &base.join("users.yaml").display().to_string()).await?;
-        db::seed::<websites::ActiveModel>(db, &base.join("websites.yaml").display().to_string()).await?;
+        db::seed::<websites::ActiveModel>(db, &base.join("websites.yaml").display().to_string())
+            .await?;
         Ok(())
     }
 }

@@ -1,11 +1,10 @@
-use search::app::App;
 use loco_rs::prelude::*;
 use loco_rs::testing;
+use search::app::App;
 
 use search::workers::crawl_all::CrawlAllWorker;
 use search::workers::crawl_all::CrawlAllWorkerArgs;
 use serial_test::serial;
-
 
 #[tokio::test]
 #[serial]

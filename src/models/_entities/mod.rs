@@ -2,8 +2,6 @@
 
 pub mod prelude;
 
-pub mod htmx_tests;
 pub mod pages;
-pub mod stats;
 pub mod users;
 pub mod websites;
