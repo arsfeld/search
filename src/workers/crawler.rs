@@ -3,8 +3,8 @@ use std::sync::{Arc, RwLock};
 use loco_rs::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use spider::website::Website;
 use spider::tokio;
+use spider::website::Website;
 use spider_transformations::transformation::content::{self, ReturnFormat, TransformConfig};
 use tantivy::{doc, Index, Opstamp, TantivyError, Term};
 use tracing::info;

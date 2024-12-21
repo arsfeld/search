@@ -42,7 +42,7 @@ pub fn edit(v: &impl ViewRenderer, item: &websites::Model) -> Result<Response> {
 }
 
 /// Render a website crawling confirmation.
-/// 
+///
 /// Render a website crawling confirmation.
 ///
 pub fn crawl_confirm() -> Result<Response> {
