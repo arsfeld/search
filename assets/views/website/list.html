@@ -14,10 +14,13 @@ List of Websites
                 hx-trigger="click"
                 hx-target="#crawl-status"
                 hx-swap="innerHTML"
-                class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded transition duration-300 ease-in-out">
-                Crawl Websites
+                class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded transition duration-300 ease-in-out flex items-center">
+                <span>Crawl Websites</span>
+                <div id="spinner" class="hidden ml-2">
+                    <div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                </div>
+                <div id="crawl-status" class="ml-2"></div>
             </button>
-            <div id="crawl-status" class="text-green-600 mb-4"></div>
             <a href="/" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded transition duration-300 ease-in-out">
                 Back to Search
             </a>
@@ -52,9 +55,18 @@ List of Websites
 
 {% block js %}
 <script>
+    htmx.on("htmx:beforeRequest", function(evt) {
+        if (evt.detail.elt.id === "crawl-button") {
+            document.getElementById("spinner").classList.remove("hidden");
+            evt.detail.elt.classList.add("opacity-50", "cursor-not-allowed");
+            evt.detail.elt.disabled = true;
+        }
+    });
     htmx.on("htmx:afterRequest", function(evt) {
         if (evt.detail.elt.id === "crawl-button") {
-            alert("Crawling process started!");
+            document.getElementById("spinner").classList.add("hidden");
+            evt.detail.elt.classList.remove("opacity-50", "cursor-not-allowed");
+            evt.detail.elt.disabled = false;
         }
     });
 </script>

@@ -109,7 +109,7 @@ pub async fn remove(Path(id): Path<i32>, State(ctx): State<AppContext>) -> Resul
 pub async fn crawl(State(ctx): State<AppContext>) -> Result<Response> {
     CrawlAllWorker::perform_later(&ctx, CrawlAllWorkerArgs {}).await?;
 
-    format::html("Crawling started")
+    views::website::crawl_confirm()
 }
 
 pub fn routes() -> Routes {

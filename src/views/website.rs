@@ -40,3 +40,11 @@ pub fn create(v: &impl ViewRenderer) -> Result<Response> {
 pub fn edit(v: &impl ViewRenderer, item: &websites::Model) -> Result<Response> {
     format::render().view(v, "website/edit.html", data!({"item": item}))
 }
+
+/// Render a website crawling confirmation.
+/// 
+/// Render a website crawling confirmation.
+///
+pub fn crawl_confirm() -> Result<Response> {
+    format::html(r#"<i class="fas fa-check text-white text-lg"></i>"#)
+}
