@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use spider::configuration::{WaitForIdleNetwork, WaitForSelector};
 use spider::website::Website;
 use spider::{features::chrome_common::RequestInterceptConfiguration, tokio};
-use spider_transformations::transformation::content::{self, ReturnFormat};
+use spider_transformations::transformation::content::{self, ReturnFormat, TransformConfig};
 use tantivy::{doc, Index, Opstamp, TantivyError, Term};
 use tracing::info;
 use ActiveValue::NotSet;
@@ -151,8 +151,10 @@ impl BackgroundWorker<CrawlerWorkerArgs> for CrawlerWorker {
             },
             async move {
                 while let Ok(page) = rx2.recv().await {
-                    let mut conf = content::TransformConfig::default();
-                    conf.return_format = ReturnFormat::Html2Text;
+                    let conf = TransformConfig {
+                        return_format: ReturnFormat::Html2Text,
+                        ..Default::default()
+                    };
                     let content = content::transform_content(&page, &conf, &None, &None, &None);
                     let url = page.get_url().to_string();
 
