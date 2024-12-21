@@ -113,27 +113,9 @@ impl BackgroundWorker<CrawlerWorkerArgs> for CrawlerWorker {
 
         let website_model = create_or_get_website(&self.ctx.db, args.url.clone()).await?;
 
-        let mut interception = RequestInterceptConfiguration::new(true);
-
-        interception.block_javascript = true;
-
         let mut website: Website = Website::new(args.url.as_str())
             .with_limit(10000)
-            .with_chrome_intercept(interception)
-            .with_wait_for_idle_network(Some(WaitForIdleNetwork::new(Some(Duration::from_millis(
-                500,
-            )))))
-            .with_wait_for_idle_dom(Some(WaitForSelector::new(
-                Some(Duration::from_millis(100)),
-                "body".into(),
-            )))
-            .with_block_assets(true)
-            // .with_wait_for_delay(Some(WaitForDelay::new(Some(Duration::from_millis(10000)))))
-            .with_stealth(true)
             .with_return_page_links(true)
-            .with_fingerprint(true)
-            // .with_proxies(Some(vec!["http://localhost:8888".into()]))
-            // .with_chrome_connection(Some("http://127.0.0.1:9222/json/version".into()))
             .build()
             .unwrap();
 
